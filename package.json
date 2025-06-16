@@ -8,20 +8,26 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "expo export:web",
-    "build:web": "expo export:web"
+    "build": "expo export --platform web",
+    "build:web": "expo export --platform web"
   },
-  "keywords": ["2048", "game", "react-native", "expo", "web"],
+  "keywords": [
+    "2048",
+    "game",
+    "react-native",
+    "expo",
+    "web"
+  ],
   "author": "laurihut",
   "license": "MIT",
   "dependencies": {
-    "@expo/webpack-config": "^20.0.0",
     "expo": "~52.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
     "react-native-gesture-handler": "^2.26.0",
-    "react-native-web": "~0.19.12"
+    "react-native-web": "~0.19.12",
+    "@expo/metro-runtime": "~4.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
@@ -29,4 +35,4 @@
     "typescript": "~5.3.0"
   },
   "private": true
-} 
+}

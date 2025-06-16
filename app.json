@@ -22,7 +22,7 @@
       }
     },
     "web": {
-      "bundler": "webpack"
+      "bundler": "metro"
     }
   }
 } 
