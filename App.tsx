@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 // Gesture handler imports - may not work on web without additional setup
 let PanGestureHandler: any, State: any;
@@ -74,27 +75,59 @@ export default function App() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-      }, [move, gameState.gameOver, gameState.won]);
+  }, [move, gameState.gameOver, gameState.won]);
 
   const handleGesture = (event: any) => {
-    if (event.nativeEvent.state === State.END) {
-      const { translationX, translationY } = event.nativeEvent;
-      const minSwipeDistance = 50;
+    // Prevent gestures during game over
+    if (gameState.gameOver || gameState.won) return;
 
-      // Determine swipe direction
+    if (event.nativeEvent.state === State.END) {
+      const { translationX, translationY, velocityX, velocityY } = event.nativeEvent;
+      
+      // Adjusted minimum distances for better mobile responsiveness
+      const minSwipeDistance = 30; // Reduced from 50 for easier mobile gestures
+      const minVelocity = 100; // Add velocity check for more responsive gestures
+
+      console.log('Gesture:', { translationX, translationY, velocityX, velocityY });
+
+      // Check if gesture meets minimum requirements (distance OR velocity)
+      const hasMinDistance = Math.max(Math.abs(translationX), Math.abs(translationY)) > minSwipeDistance;
+      const hasMinVelocity = Math.max(Math.abs(velocityX), Math.abs(velocityY)) > minVelocity;
+      
+      if (!hasMinDistance && !hasMinVelocity) {
+        console.log('Gesture too small/slow, ignoring');
+        return;
+      }
+
+      // Determine swipe direction based on the larger movement
       if (Math.abs(translationX) > Math.abs(translationY)) {
         // Horizontal swipe
-        if (Math.abs(translationX) > minSwipeDistance) {
-          const direction: Direction = translationX > 0 ? 'right' : 'left';
-          move(direction);
-        }
+        const direction: Direction = translationX > 0 ? 'right' : 'left';
+        console.log(`Horizontal swipe: ${direction}`);
+        move(direction);
       } else {
         // Vertical swipe
-        if (Math.abs(translationY) > minSwipeDistance) {
-          const direction: Direction = translationY > 0 ? 'down' : 'up';
-          move(direction);
-        }
+        const direction: Direction = translationY > 0 ? 'down' : 'up';
+        console.log(`Vertical swipe: ${direction}`);
+        move(direction);
       }
+    }
+  };
+
+  // Dynamic instruction text based on platform
+  const getInstructionText = () => {
+    if (Platform.OS === 'web') {
+      return 'Use arrow keys, WASD keys, or swipe gestures to move tiles. When two tiles with the same number touch, they merge into one!';
+    } else {
+      return 'Swipe in any direction to move tiles! When two tiles with the same image touch, they merge into one. Use the arrow buttons if you prefer tapping.';
+    }
+  };
+
+  const getHintText = () => {
+    if (Platform.OS === 'web') {
+      return '💡 Use arrow keys, WASD keys, or swipe to play!';
+    } else {
+      return '📱 Swipe in any direction to move the tiles!';
     }
   };
 
@@ -105,25 +138,31 @@ export default function App() {
         style={styles.keyboardHint}
         // Make the container focusable for keyboard events on web
         // @ts-ignore - These props are web-specific
-        tabIndex={0}
+        tabIndex={Platform.OS === 'web' ? 0 : undefined}
       >
         <Text style={styles.keyboardHintText}>
-          💡 Use arrow keys or WASD keys on your keyboard to play!
+          {getHintText()}
         </Text>
       </View>
       
       <View style={styles.header}>
-        <Text style={styles.title}>2048</Text>
+        <Text style={styles.title}>Auto2048</Text>
         <Text style={styles.subtitle}>
-          Join the tiles, get to 2048!
+          Swipe to combine cars and reach the ultimate ride!
         </Text>
       </View>
 
       <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} />
 
       <View style={styles.gameContainer}>
-        <PanGestureHandler onGestureEvent={handleGesture}>
-          <View style={styles.gestureContainer}>
+        <PanGestureHandler 
+          onGestureEvent={handleGesture}
+          activeOffsetX={[-10, 10]}
+          activeOffsetY={[-10, 10]}
+          failOffsetX={[-5, 5]}
+          failOffsetY={[-5, 5]}
+        >
+          <View style={[styles.gestureContainer, styles.touchArea]}>
             <AnimatedGameBoard 
               key={gameKey}
               tiles={tiles}
@@ -147,7 +186,7 @@ export default function App() {
 
       <View style={styles.instructions}>
         <Text style={styles.instructionsText}>
-          Use arrow keys, swipe gestures, or the arrow buttons to move tiles. When two tiles with the same number touch, they merge into one!
+          {getInstructionText()}
         </Text>
       </View>
 
@@ -189,6 +228,11 @@ const styles = StyleSheet.create({
   },
   gestureContainer: {
     // This wrapper is needed for PanGestureHandler
+  },
+  touchArea: {
+    // Ensure adequate touch area for gestures
+    minWidth: 300,
+    minHeight: 300,
   },
   controls: {
     alignItems: 'center',
