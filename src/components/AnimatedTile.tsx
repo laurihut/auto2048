@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet } from 'react-native';
+import { Animated, StyleSheet, Image } from 'react-native';
 import { getTileColor, getTileTextColor } from '../utils/gameLogic';
+import { getImageSource } from '../utils/imageMapping';
 
 interface AnimatedTileProps {
   id: string;
@@ -115,10 +116,7 @@ const AnimatedTile: React.FC<AnimatedTileProps> = ({
     backgroundColor: getTileColor(value),
   };
 
-  const textStyle = {
-    color: getTileTextColor(value),
-    fontSize: value >= 1000 ? size * 0.25 : size * 0.35,
-  };
+  const imageSource = getImageSource(value);
 
   return (
     <Animated.View
@@ -135,9 +133,33 @@ const AnimatedTile: React.FC<AnimatedTileProps> = ({
         },
       ]}
     >
-      <Animated.Text style={[styles.tileText, textStyle]} numberOfLines={1}>
-        {value}
-      </Animated.Text>
+      {imageSource ? (
+        <Animated.Image 
+          source={imageSource}
+          style={[
+            styles.tileImage, 
+            { 
+              width: size * 0.8, 
+              height: size * 0.8,
+              transform: [{ scale: scaleAnimation }]
+            }
+          ]}
+          resizeMode="contain"
+        />
+      ) : (
+        <Animated.Text 
+          style={[
+            styles.tileText, 
+            {
+              color: getTileTextColor(value),
+              fontSize: value >= 1000 ? size * 0.25 : size * 0.35,
+            }
+          ]} 
+          numberOfLines={1}
+        >
+          {value}
+        </Animated.Text>
+      )}
     </Animated.View>
   );
 };
@@ -148,6 +170,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
+  },
+  tileImage: {
+    borderRadius: 4,
   },
   tileText: {
     fontWeight: 'bold',
