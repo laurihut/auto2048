@@ -7,6 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Platform,
+  ScrollView,
 } from 'react-native';
 // Gesture handler imports - may not work on web without additional setup
 let PanGestureHandler: any, State: any;
@@ -81,14 +82,17 @@ export default function App() {
     // Prevent gestures during game over
     if (gameState.gameOver || gameState.won) return;
 
-    if (event.nativeEvent.state === State.END) {
+    // Handle both onGestureEvent and onHandlerStateChange
+    const state = event.nativeEvent.state || event.nativeEvent.oldState;
+    
+    if (state === State.END) {
       const { translationX, translationY, velocityX, velocityY } = event.nativeEvent;
       
       // Adjusted minimum distances for better mobile responsiveness
-      const minSwipeDistance = 30; // Reduced from 50 for easier mobile gestures
-      const minVelocity = 100; // Add velocity check for more responsive gestures
+      const minSwipeDistance = 25; // Slightly reduced for easier gestures
+      const minVelocity = 150; // Increased threshold for more intentional gestures
 
-      console.log('Gesture:', { translationX, translationY, velocityX, velocityY });
+      console.log('Gesture:', { translationX, translationY, velocityX, velocityY, state });
 
       // Check if gesture meets minimum requirements (distance OR velocity)
       const hasMinDistance = Math.max(Math.abs(translationX), Math.abs(translationY)) > minSwipeDistance;
@@ -134,61 +138,73 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FAF8EF" />
-      <View 
-        style={styles.keyboardHint}
-        // Make the container focusable for keyboard events on web
-        // @ts-ignore - These props are web-specific
-        tabIndex={Platform.OS === 'web' ? 0 : undefined}
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={true}
+        bounces={false}
+        scrollEnabled={true}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={false}
       >
-        <Text style={styles.keyboardHintText}>
-          {getHintText()}
-        </Text>
-      </View>
-      
-      <View style={styles.header}>
-        <Text style={styles.title}>Auto2048</Text>
-        <Text style={styles.subtitle}>
-          Swipe to combine cars and reach the ultimate ride!
-        </Text>
-      </View>
-
-      <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} />
-
-      <View style={styles.gameContainer}>
-        <PanGestureHandler 
-          onGestureEvent={handleGesture}
-          activeOffsetX={[-10, 10]}
-          activeOffsetY={[-10, 10]}
-          failOffsetX={[-5, 5]}
-          failOffsetY={[-5, 5]}
+        <View 
+          style={styles.keyboardHint}
+          // Make the container focusable for keyboard events on web
+          // @ts-ignore - These props are web-specific
+          tabIndex={Platform.OS === 'web' ? 0 : undefined}
         >
-          <View style={[styles.gestureContainer, styles.touchArea]}>
-            <AnimatedGameBoard 
-              key={gameKey}
-              tiles={tiles}
-              tileMoves={lastTileMoves}
-              newTile={newTile}
-            />
-          </View>
-        </PanGestureHandler>
-      </View>
+          <Text style={styles.keyboardHintText}>
+            {getHintText()}
+          </Text>
+        </View>
+        
+        <View style={styles.header}>
+          <Text style={styles.title}>Auto2048</Text>
+          <Text style={styles.subtitle}>
+            Swipe to combine cars and reach the ultimate ride!
+          </Text>
+        </View>
 
-      <GameControls 
-        onMove={move} 
-        disabled={gameState.gameOver || gameState.won} 
-      />
+        <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} />
 
-      <View style={styles.controls}>
-        <TouchableOpacity style={styles.newGameButton} onPress={restart}>
-          <Text style={styles.newGameButtonText}>New Game</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.gameContainer}>
+          <PanGestureHandler 
+            onGestureEvent={handleGesture}
+            onHandlerStateChange={handleGesture}
+            activeOffsetX={[-15, 15]}
+            activeOffsetY={[-15, 15]}
+            failOffsetX={[-10, 10]}
+            failOffsetY={[-10, 10]}
+            simultaneousHandlers={[]}
+            shouldCancelWhenOutside={true}
+          >
+            <View style={[styles.gestureContainer, styles.touchArea]}>
+              <AnimatedGameBoard 
+                key={gameKey}
+                tiles={tiles}
+                tileMoves={lastTileMoves}
+                newTile={newTile}
+              />
+            </View>
+          </PanGestureHandler>
+        </View>
 
-      <View style={styles.instructions}>
-        <Text style={styles.instructionsText}>
-          {getInstructionText()}
-        </Text>
-      </View>
+        <GameControls 
+          onMove={move} 
+          disabled={gameState.gameOver || gameState.won} 
+        />
+
+        <View style={styles.controls}>
+          <TouchableOpacity style={styles.newGameButton} onPress={restart}>
+            <Text style={styles.newGameButtonText}>New Game</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.instructions}>
+          <Text style={styles.instructionsText}>
+            {getInstructionText()}
+          </Text>
+        </View>
+      </ScrollView>
 
       <GameOverModal
         visible={gameState.gameOver || gameState.won}
@@ -205,6 +221,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAF8EF',
+  },
+  scrollContent: {
+    flexGrow: 1,
     padding: 20,
   },
   header: {
@@ -230,9 +249,9 @@ const styles = StyleSheet.create({
     // This wrapper is needed for PanGestureHandler
   },
   touchArea: {
-    // Ensure adequate touch area for gestures
-    minWidth: 300,
-    minHeight: 300,
+    // Ensure adequate touch area for gestures - increased for larger board
+    minWidth: 650,
+    minHeight: 650,
   },
   controls: {
     alignItems: 'center',

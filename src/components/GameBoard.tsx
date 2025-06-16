@@ -8,8 +8,8 @@ interface GameBoardProps {
 }
 
 const { width } = Dimensions.get('window');
-const BOARD_SIZE = Math.min(width - 40, 400);
-const GAP = 8;
+const BOARD_SIZE = 600; // Fixed large size, no longer constrained by screen width  
+const GAP = 12; // Slightly larger gap for bigger board
 const TILE_SIZE = (BOARD_SIZE - GAP * 5) / 4; // Board padding + 3 gaps between 4 tiles
 
 const GameBoard: React.FC<GameBoardProps> = ({ grid }) => {

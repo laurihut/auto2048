@@ -22,7 +22,7 @@ const Tile: React.FC<TileProps> = ({ value, size }) => {
       {value && imageSource && (
         <Image 
           source={imageSource}
-          style={[styles.tileImage, { width: size * 0.8, height: size * 0.8 }]}
+          style={[styles.tileImage, { width: size * 1.1, height: size * 1.1 }]}
           resizeMode="contain"
         />
       )}
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   tileImage: {
-    borderRadius: 4,
+    borderRadius: 0,
   },
   tileText: {
     fontWeight: 'bold',

@@ -34,7 +34,7 @@ const AnimatedTile: React.FC<AnimatedTileProps> = ({
   const scaleAnimation = useRef(new Animated.Value(isSpawning ? 0 : 1)).current;
   const opacityAnimation = useRef(new Animated.Value(1)).current;
 
-  const GAP = 8;
+  const GAP = 12;
   const targetX = GAP + currentCol * (size + GAP);
   const targetY = GAP + currentRow * (size + GAP);
   
@@ -44,8 +44,8 @@ const AnimatedTile: React.FC<AnimatedTileProps> = ({
   // Handle position and movement animation
   useEffect(() => {
     const hasMovement = fromRow !== undefined && fromCol !== undefined;
-    const startX = hasMovement ? fromCol * (size + GAP) : targetX;
-    const startY = hasMovement ? fromRow * (size + GAP) : targetY;
+    const startX = hasMovement ? GAP + fromCol * (size + GAP) : targetX;
+    const startY = hasMovement ? GAP + fromRow * (size + GAP) : targetY;
 
     // Set initial position
     animatedPosition.setValue({ x: startX, y: startY });
@@ -139,8 +139,8 @@ const AnimatedTile: React.FC<AnimatedTileProps> = ({
           style={[
             styles.tileImage, 
             { 
-              width: size * 0.8, 
-              height: size * 0.8,
+              width: size * 1.1, 
+              height: size * 1.1,
               transform: [{ scale: scaleAnimation }]
             }
           ]}
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   tileImage: {
-    borderRadius: 4,
+    borderRadius: 0,
   },
   tileText: {
     fontWeight: 'bold',

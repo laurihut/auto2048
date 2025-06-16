@@ -10,8 +10,8 @@ interface AnimatedGameBoardProps {
 }
 
 const { width } = Dimensions.get('window');
-const BOARD_SIZE = Math.min(width - 40, 400);
-const GAP = 8;
+const BOARD_SIZE = 600; // Fixed large size, no longer constrained by screen width
+const GAP = 12; // Slightly larger gap for bigger board
 const TILE_SIZE = (BOARD_SIZE - GAP * 5) / 4;
 
 // Animation timing constants
