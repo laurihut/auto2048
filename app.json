@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "2048 Game",
-    "slug": "react-native-2048-game",
+    "name": "Auto2048",
+    "slug": "auto2048",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "platforms": ["ios", "android", "web"],
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#FAF8EF"
