@@ -9,9 +9,10 @@ interface AnimatedGameBoardProps {
   newTile: GameTile | null;
 }
 
-const { width } = Dimensions.get('window');
-const BOARD_SIZE = 600; // Fixed large size, no longer constrained by screen width
-const GAP = 12; // Slightly larger gap for bigger board
+const { width, height } = Dimensions.get('window');
+// Responsive board size: use 90% of screen width, but minimum 350px and maximum 600px
+const BOARD_SIZE = Math.min(Math.max(width * 0.9, 350), 600);
+const GAP = Math.max(8, Math.min(BOARD_SIZE * 0.02, 16)); // Responsive gap: 2% of board size, between 8-16px
 const TILE_SIZE = (BOARD_SIZE - GAP * 5) / 4;
 
 // Animation timing constants

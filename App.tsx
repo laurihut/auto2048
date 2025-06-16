@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Platform,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 // Gesture handler imports - may not work on web without additional setup
 let PanGestureHandler: any, State: any;
@@ -249,9 +250,9 @@ const styles = StyleSheet.create({
     // This wrapper is needed for PanGestureHandler
   },
   touchArea: {
-    // Ensure adequate touch area for gestures - increased for larger board
-    minWidth: 650,
-    minHeight: 650,
+    // Responsive touch area based on screen size
+    minWidth: Math.min(Math.max(Dimensions.get('window').width * 0.9, 350), 600) + 50,
+    minHeight: Math.min(Math.max(Dimensions.get('window').width * 0.9, 350), 600) + 50,
   },
   controls: {
     alignItems: 'center',

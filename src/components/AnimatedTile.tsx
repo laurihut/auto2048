@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Image } from 'react-native';
+import { Animated, StyleSheet, Image, Dimensions } from 'react-native';
 import { getTileColor, getTileTextColor } from '../utils/gameLogic';
 import { getImageSource } from '../utils/imageMapping';
 
@@ -34,7 +34,11 @@ const AnimatedTile: React.FC<AnimatedTileProps> = ({
   const scaleAnimation = useRef(new Animated.Value(isSpawning ? 0 : 1)).current;
   const opacityAnimation = useRef(new Animated.Value(1)).current;
 
-  const GAP = 12;
+  // Calculate responsive GAP to match board sizing
+  const { width } = Dimensions.get('window');
+  const BOARD_SIZE = Math.min(Math.max(width * 0.9, 350), 600);
+  const GAP = Math.max(8, Math.min(BOARD_SIZE * 0.02, 16)); // Match board GAP calculation
+  
   const targetX = GAP + currentCol * (size + GAP);
   const targetY = GAP + currentRow * (size + GAP);
   
