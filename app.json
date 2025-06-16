@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "2048 Game",
+    "slug": "react-native-2048-game",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#FAF8EF"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FAF8EF"
+      }
+    },
+    "web": {
+      "bundler": "webpack"
+    }
+  }
+} 
