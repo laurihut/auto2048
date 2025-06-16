@@ -6,6 +6,9 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "platforms": ["ios", "android", "web"],
+    "experiments": {
+      "baseUrl": "/auto2048"
+    },
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#FAF8EF"
