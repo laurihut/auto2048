@@ -80,42 +80,71 @@ export default function App() {
   }, [move, gameState.gameOver, gameState.won]);
 
   const handleGesture = (event: any) => {
-    // Prevent gestures during game over
-    if (gameState.gameOver || gameState.won) return;
-
-    // Handle both onGestureEvent and onHandlerStateChange
-    const state = event.nativeEvent.state || event.nativeEvent.oldState;
+    console.log('=== GESTURE EVENT ===');
+    console.log('Event type:', event.nativeEvent);
+    console.log('Game state - over:', gameState.gameOver, 'won:', gameState.won);
     
+    // Prevent gestures during game over
+    if (gameState.gameOver || gameState.won) {
+      console.log('Game over/won, ignoring gesture');
+      return;
+    }
+
+    // Get the state - this should work for both onGestureEvent and onHandlerStateChange
+    const state = event.nativeEvent.state;
+    console.log('Gesture state:', state, 'Expected END state:', State.END);
+    
+    // Only process when gesture ends
     if (state === State.END) {
-      const { translationX, translationY, velocityX, velocityY } = event.nativeEvent;
+      const { translationX, translationY, velocityX = 0, velocityY = 0 } = event.nativeEvent;
       
-      // Adjusted minimum distances for better mobile responsiveness
-      const minSwipeDistance = 25; // Slightly reduced for easier gestures
-      const minVelocity = 150; // Increased threshold for more intentional gestures
+      console.log('Gesture data:', { 
+        translationX, 
+        translationY, 
+        velocityX, 
+        velocityY,
+        absTranslationX: Math.abs(translationX),
+        absTranslationY: Math.abs(translationY)
+      });
 
-      console.log('Gesture:', { translationX, translationY, velocityX, velocityY, state });
+      // More lenient thresholds for better responsiveness
+      const minSwipeDistance = 20; // Even lower threshold
+      const minVelocity = 100; // Lower velocity threshold
 
-      // Check if gesture meets minimum requirements (distance OR velocity)
-      const hasMinDistance = Math.max(Math.abs(translationX), Math.abs(translationY)) > minSwipeDistance;
-      const hasMinVelocity = Math.max(Math.abs(velocityX), Math.abs(velocityY)) > minVelocity;
+      // Check if gesture meets minimum requirements
+      const maxTranslation = Math.max(Math.abs(translationX), Math.abs(translationY));
+      const maxVelocity = Math.max(Math.abs(velocityX), Math.abs(velocityY));
       
-      if (!hasMinDistance && !hasMinVelocity) {
-        console.log('Gesture too small/slow, ignoring');
+      console.log('Thresholds:', { 
+        maxTranslation, 
+        minSwipeDistance, 
+        maxVelocity, 
+        minVelocity,
+        hasMinDistance: maxTranslation > minSwipeDistance,
+        hasMinVelocity: maxVelocity > minVelocity
+      });
+      
+      if (maxTranslation <= minSwipeDistance && maxVelocity <= minVelocity) {
+        console.log('❌ Gesture too small/slow, ignoring');
         return;
       }
 
       // Determine swipe direction based on the larger movement
+      let direction: Direction;
       if (Math.abs(translationX) > Math.abs(translationY)) {
         // Horizontal swipe
-        const direction: Direction = translationX > 0 ? 'right' : 'left';
-        console.log(`Horizontal swipe: ${direction}`);
-        move(direction);
+        direction = translationX > 0 ? 'right' : 'left';
+        console.log(`✅ Horizontal swipe detected: ${direction} (translation: ${translationX})`);
       } else {
         // Vertical swipe
-        const direction: Direction = translationY > 0 ? 'down' : 'up';
-        console.log(`Vertical swipe: ${direction}`);
-        move(direction);
+        direction = translationY > 0 ? 'down' : 'up';
+        console.log(`✅ Vertical swipe detected: ${direction} (translation: ${translationY})`);
       }
+      
+      console.log('🎮 Calling move with direction:', direction);
+      move(direction);
+    } else {
+      console.log('Gesture state not END, ignoring:', state);
     }
   };
 
@@ -143,7 +172,7 @@ export default function App() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
         bounces={false}
-        scrollEnabled={true}
+        scrollEnabled={false}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={false}
       >
@@ -167,16 +196,23 @@ export default function App() {
 
         <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} />
 
+        {/* Debug gesture area - remove this later */}
+        <View style={styles.debugArea}>
+          <Text style={styles.debugText}>Swipe here to test gestures</Text>
+          <PanGestureHandler onHandlerStateChange={handleGesture}>
+            <View style={styles.debugGestureArea}>
+              <Text style={styles.debugText}>DEBUG SWIPE AREA</Text>
+            </View>
+          </PanGestureHandler>
+        </View>
+
         <View style={styles.gameContainer}>
           <PanGestureHandler 
-            onGestureEvent={handleGesture}
             onHandlerStateChange={handleGesture}
-            activeOffsetX={[-15, 15]}
-            activeOffsetY={[-15, 15]}
-            failOffsetX={[-10, 10]}
-            failOffsetY={[-10, 10]}
-            simultaneousHandlers={[]}
-            shouldCancelWhenOutside={true}
+            minDist={20}
+            activeOffsetX={[-20, 20]}
+            activeOffsetY={[-20, 20]}
+            enableTrackpadTwoFingerGesture={false}
           >
             <View style={[styles.gestureContainer, styles.touchArea]}>
               <AnimatedGameBoard 
@@ -292,5 +328,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  debugArea: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  debugText: {
+    color: '#8F7A66',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  debugGestureArea: {
+    backgroundColor: '#EDCF72',
+    padding: 20,
+    borderRadius: 8,
   },
 }); 
