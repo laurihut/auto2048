@@ -172,7 +172,7 @@ export default function App() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
         bounces={false}
-        scrollEnabled={false}
+        scrollEnabled={true}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={false}
       >
@@ -195,16 +195,6 @@ export default function App() {
         </View>
 
         <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} />
-
-        {/* Debug gesture area - remove this later */}
-        <View style={styles.debugArea}>
-          <Text style={styles.debugText}>Swipe here to test gestures</Text>
-          <PanGestureHandler onHandlerStateChange={handleGesture}>
-            <View style={styles.debugGestureArea}>
-              <Text style={styles.debugText}>DEBUG SWIPE AREA</Text>
-            </View>
-          </PanGestureHandler>
-        </View>
 
         <View style={styles.gameContainer}>
           <PanGestureHandler 
@@ -328,19 +318,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  debugArea: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  debugText: {
-    color: '#8F7A66',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  debugGestureArea: {
-    backgroundColor: '#EDCF72',
-    padding: 20,
-    borderRadius: 8,
   },
 }); 

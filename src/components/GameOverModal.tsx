@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Image,
 } from 'react-native';
 
 interface GameOverModalProps {
@@ -37,9 +38,23 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
               {gameWon ? '🎉 You Won!' : '😢 Game Over'}
             </Text>
             
+            {/* Show Lamborghini image when player wins */}
+            {gameWon && (
+              <View style={styles.winImageContainer}>
+                <Image 
+                  source={require('../../assets/11.png')} 
+                  style={styles.winImage}
+                  resizeMode="contain"
+                />
+                <Text style={styles.winImageCaption}>
+                  🏆 Ultimate Ride Achieved! 🏆
+                </Text>
+              </View>
+            )}
+            
             <Text style={styles.message}>
               {gameWon 
-                ? 'Congratulations! You reached 2048!' 
+                ? 'Congratulations! You reached 2048 and earned the ultimate car!' 
                 : 'No more moves available!'}
             </Text>
             
@@ -137,6 +152,19 @@ const styles = StyleSheet.create({
     color: '#F9F6F2',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  winImageContainer: {
+    marginBottom: 15,
+  },
+  winImage: {
+    width: 200,
+    height: 200,
+  },
+  winImageCaption: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#776E65',
+    textAlign: 'center',
   },
 });
 
