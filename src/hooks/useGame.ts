@@ -18,6 +18,10 @@ export const useGame = () => {
     won: false,
   }));
   
+  const [attempts, setAttempts] = useState<number>(1);
+  const [highestTileValue, setHighestTileValue] = useState<number>(2);
+  const [hasContinuedAfterWin, setHasContinuedAfterWin] = useState<boolean>(false);
+  
   const [lastTileMoves, setLastTileMoves] = useState<TileMovement[]>([]);
   const [newTile, setNewTile] = useState<GameTile | null>(null);
   const [gameKey, setGameKey] = useState(0); // Force component remount on restart
@@ -77,6 +81,10 @@ export const useGame = () => {
     // Check if game is over
     const isGameOver = !canMoveTiles(finalTiles);
     
+    // Update highest tile value
+    const currentHighest = Math.max(...finalTiles.map(tile => tile.value));
+    setHighestTileValue(prev => Math.max(prev, currentHighest));
+    
     setGameState(prev => ({
       tiles: finalTiles,
       score: newScore,
@@ -95,6 +103,11 @@ export const useGame = () => {
     // Increment game key to force complete component remount
     setGameKey(prev => prev + 1);
     
+    // Increment attempts only if previous game was over (lost)
+    if (gameState.gameOver && !gameState.won) {
+      setAttempts(prev => prev + 1);
+    }
+    
     setGameState({
       tiles: newTiles,
       score: 0,
@@ -107,12 +120,23 @@ export const useGame = () => {
     setLastTileMoves([]);
     setNewTile(null);
     
+    // Reset highest tile value for new game
+    setHighestTileValue(2);
+    
+    // Reset continue-after-win flag
+    setHasContinuedAfterWin(false);
+    
     console.log('Game restarted with tiles:', newTiles);
     console.log('New game key:', gameKey + 1);
-  }, [gameState.bestScore, gameKey]);
+  }, [gameState.bestScore, gameState.gameOver, gameState.won, gameKey]);
 
   const continueAfterWin = useCallback(() => {
     setGameState(prev => ({ ...prev, won: false }));
+    setHasContinuedAfterWin(true);
+  }, []);
+
+  const resetAttempts = useCallback(() => {
+    setAttempts(1);
   }, []);
 
   // Convert tiles to grid for backward compatibility
@@ -127,8 +151,12 @@ export const useGame = () => {
     lastTileMoves,
     newTile,
     gameKey, // Export game key for component remounting
+    attempts, // Export attempts counter
+    highestTileValue, // Export highest tile value
+    hasContinuedAfterWin, // Export continue-after-win flag
     move,
     restart,
     continueAfterWin,
+    resetAttempts,
   };
 }; 

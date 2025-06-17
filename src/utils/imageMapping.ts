@@ -38,4 +38,22 @@ export const getImageSource = (value: number) => {
     case '11': return require('../../assets/11.png');
     default: return null;
   }
+};
+
+export const getCarNameFromValue = (value: number): string => {
+  const carNames: { [key: number]: string } = {
+    2: 'Volkswagen Kupla',
+    4: 'Fiat Punto', 
+    8: 'Ford Focus',
+    16: 'Nissan X Trail',
+    32: 'Volvo XC 90',
+    64: 'Toyota Avensis',
+    128: 'Mercedes Benz AMG 63',
+    256: 'BMW 330d',
+    512: 'Ford Mustang GT',
+    1024: 'Audi R 8',
+    2048: 'Lamborghini Revuelto',
+  };
+
+  return carNames[value] || `Auto (${value})`;
 }; 

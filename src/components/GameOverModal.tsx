@@ -8,21 +8,28 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
+import { getCarNameFromValue, getImageSource } from '../utils/imageMapping';
 
 interface GameOverModalProps {
   visible: boolean;
   gameWon: boolean;
   score: number;
+  highestTileValue: number;
+  hasContinuedAfterWin: boolean;
   onRestart: () => void;
   onContinue?: () => void;
+  onResetAttempts?: () => void;
 }
 
 const GameOverModal: React.FC<GameOverModalProps> = ({
   visible,
   gameWon,
   score,
+  highestTileValue,
+  hasContinuedAfterWin,
   onRestart,
   onContinue,
+  onResetAttempts,
 }) => {
   return (
     <Modal
@@ -35,7 +42,7 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.title}>
-              {gameWon ? '🎉 You Won!' : '😢 Game Over'}
+              {gameWon ? '🎉 Voitit!' : '😅 Hupsis, mitä sattui käymään?'}
             </Text>
             
             {/* Show Lamborghini image when player wins */}
@@ -47,27 +54,48 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
                   resizeMode="contain"
                 />
                 <Text style={styles.winImageCaption}>
-                  🏆 Ultimate Ride Achieved! 🏆
+                  🏆 Lopullinen Auto Saavutettu! 🏆
+                </Text>
+                <Text style={styles.winCarName}>
+                  {getCarNameFromValue(2048)}
                 </Text>
               </View>
             )}
             
             <Text style={styles.message}>
               {gameWon 
-                ? 'Congratulations! You reached 2048 and earned the ultimate car!' 
-                : 'No more moves available!'}
+                ? 'Onnittelut! Saavutit 2048 ja ansaitsit lopullisen auton!' 
+                : 'Ei enää siirtoja käytettävissä!'}
             </Text>
             
             <Text style={styles.score}>
-              Final Score: {score}
+              Lopullinen Tulos: {score}
             </Text>
+            
+            {!gameWon && (
+              <View style={styles.bestCarContainer}>
+                <Text style={styles.bestCarLabel}>Paras auto tällä yrityksellä:</Text>
+                <View style={styles.bestCarInfo}>
+                  {getImageSource(highestTileValue) && (
+                    <Image 
+                      source={getImageSource(highestTileValue)!} 
+                      style={styles.bestCarImage}
+                      resizeMode="contain"
+                    />
+                  )}
+                  <Text style={styles.bestCarName}>
+                    {getCarNameFromValue(highestTileValue)}
+                  </Text>
+                </View>
+              </View>
+            )}
             
             <View style={styles.buttonContainer}>
               <TouchableOpacity 
                 style={styles.button} 
                 onPress={onRestart}
               >
-                <Text style={styles.buttonText}>New Game</Text>
+                <Text style={styles.buttonText}>Uusi Peli</Text>
               </TouchableOpacity>
               
               {gameWon && onContinue && (
@@ -75,7 +103,16 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
                   style={[styles.button, styles.continueButton]} 
                   onPress={onContinue}
                 >
-                  <Text style={styles.buttonText}>Continue</Text>
+                  <Text style={styles.buttonText}>Jatka</Text>
+                </TouchableOpacity>
+              )}
+              
+              {gameWon && !hasContinuedAfterWin && onResetAttempts && (
+                <TouchableOpacity 
+                  style={[styles.button, styles.resetAttemptsButton]} 
+                  onPress={onResetAttempts}
+                >
+                  <Text style={styles.buttonText}>Nollaa yritykset</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -135,7 +172,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 15,
+    gap: 10,
+    flexWrap: 'wrap',
   },
   button: {
     backgroundColor: '#8F7A66',
@@ -147,6 +185,9 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     backgroundColor: '#EDCF72',
+  },
+  resetAttemptsButton: {
+    backgroundColor: '#ED7272',
   },
   buttonText: {
     color: '#F9F6F2',
@@ -165,6 +206,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#776E65',
     textAlign: 'center',
+  },
+  winCarName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#776E65',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  bestCarContainer: {
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  bestCarLabel: {
+    fontSize: 16,
+    color: '#8F7A66',
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+  bestCarInfo: {
+    alignItems: 'center',
+  },
+  bestCarImage: {
+    width: 60,
+    height: 60,
+    marginBottom: 5,
+  },
+  bestCarName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#776E65',
   },
 });
 

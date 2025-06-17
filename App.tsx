@@ -27,9 +27,10 @@ import AnimatedGameBoard from './src/components/AnimatedGameBoard';
 import ScoreBoard from './src/components/ScoreBoard';
 import GameOverModal from './src/components/GameOverModal';
 import GameControls from './src/components/GameControls';
+import CarGallery from './src/components/CarGallery';
 
 export default function App() {
-  const { gameState, tiles, lastTileMoves, newTile, gameKey, move, restart, continueAfterWin } = useGame();
+  const { gameState, tiles, lastTileMoves, newTile, gameKey, attempts, highestTileValue, hasContinuedAfterWin, move, restart, continueAfterWin, resetAttempts } = useGame();
 
   // Add keyboard event listener for arrow keys
   useEffect(() => {
@@ -151,17 +152,17 @@ export default function App() {
   // Dynamic instruction text based on platform
   const getInstructionText = () => {
     if (Platform.OS === 'web') {
-      return 'Use arrow keys, WASD keys, or swipe gestures to move tiles. When two tiles with the same number touch, they merge into one!';
+      return 'Käytä nuolinäppäimiä, WASD-näppäimiä tai pyyhkäisy-eleitä liikuttaaksesi laattoja. Kun kaksi samanlaista laattaa koskettaa toisiaan, ne yhdistyvät yhdeksi!';
     } else {
-      return 'Swipe in any direction to move tiles! When two tiles with the same image touch, they merge into one. Use the arrow buttons if you prefer tapping.';
+      return 'Pyyhkäise mihin tahansa suuntaan liikuttaaksesi laattoja! Kun kaksi samanlaista kuvaa koskettaa toisiaan, ne yhdistyvät yhdeksi. Käytä nuolipainikkeita jos haluat napauttaa.';
     }
   };
 
   const getHintText = () => {
     if (Platform.OS === 'web') {
-      return '💡 Use arrow keys, WASD keys, or swipe to play!';
+      return '💡 Käytä nuolinäppäimiä, WASD-näppäimiä tai pyyhkäisyä pelataksesi!';
     } else {
-      return '📱 Swipe in any direction to move the tiles!';
+      return '📱 Pyyhkäise mihin tahansa suuntaan liikuttaaksesi laattoja!';
     }
   };
 
@@ -190,29 +191,33 @@ export default function App() {
         <View style={styles.header}>
           <Text style={styles.title}>Auto2048</Text>
           <Text style={styles.subtitle}>
-            Swipe to combine cars and reach the ultimate ride!
+            Yhdistä autoja pyyhkäisemällä ja saavuta lopullinen ajopeli!
           </Text>
         </View>
 
-        <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} />
+        <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} attempts={attempts} />
 
         <View style={styles.gameContainer}>
-          <PanGestureHandler 
-            onHandlerStateChange={handleGesture}
-            minDist={20}
-            activeOffsetX={[-20, 20]}
-            activeOffsetY={[-20, 20]}
-            enableTrackpadTwoFingerGesture={false}
-          >
-            <View style={[styles.gestureContainer, styles.touchArea]}>
-              <AnimatedGameBoard 
-                key={gameKey}
-                tiles={tiles}
-                tileMoves={lastTileMoves}
-                newTile={newTile}
-              />
-            </View>
-          </PanGestureHandler>
+          <View style={styles.gameAreaContainer}>
+            <CarGallery />
+            <PanGestureHandler 
+              onHandlerStateChange={handleGesture}
+              activeOffsetX={[-20, 20]}
+              activeOffsetY={[-20, 20]}
+              failOffsetX={[-5, 5]}
+              failOffsetY={[-5, 5]}
+              enableTrackpadTwoFingerGesture={false}
+            >
+              <View style={[styles.gestureContainer, styles.touchArea]}>
+                <AnimatedGameBoard 
+                  key={gameKey}
+                  tiles={tiles}
+                  tileMoves={lastTileMoves}
+                  newTile={newTile}
+                />
+              </View>
+            </PanGestureHandler>
+          </View>
         </View>
 
         <GameControls 
@@ -222,7 +227,7 @@ export default function App() {
 
         <View style={styles.controls}>
           <TouchableOpacity style={styles.newGameButton} onPress={restart}>
-            <Text style={styles.newGameButtonText}>New Game</Text>
+            <Text style={styles.newGameButtonText}>Uusi Peli</Text>
           </TouchableOpacity>
         </View>
 
@@ -237,8 +242,11 @@ export default function App() {
         visible={gameState.gameOver || gameState.won}
         gameWon={gameState.won}
         score={gameState.score}
+        highestTileValue={highestTileValue}
+        hasContinuedAfterWin={hasContinuedAfterWin}
         onRestart={restart}
         onContinue={gameState.won ? continueAfterWin : undefined}
+        onResetAttempts={gameState.won && !hasContinuedAfterWin ? resetAttempts : undefined}
       />
     </SafeAreaView>
   );
@@ -271,6 +279,14 @@ const styles = StyleSheet.create({
   gameContainer: {
     alignItems: 'center',
     marginBottom: 20,
+  },
+  gameAreaContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    paddingHorizontal: Platform.OS === 'web' && Dimensions.get('window').width > 1200 ? 370 : 
+                      Platform.OS === 'web' && Dimensions.get('window').width > 800 ? 300 : 130,
+    minHeight: Platform.OS === 'web' && Dimensions.get('window').width > 1200 ? 1000 : 
+               Platform.OS === 'web' && Dimensions.get('window').width > 800 ? 800 : 400,
   },
   gestureContainer: {
     // This wrapper is needed for PanGestureHandler

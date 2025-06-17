@@ -15,7 +15,7 @@ const GameControls: React.FC<GameControlsProps> = ({ onMove, disabled = false })
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Controls:</Text>
+      <Text style={styles.label}>Ohjaimet:</Text>
       <View style={styles.controls}>
         <View style={styles.topRow}>
           <TouchableOpacity

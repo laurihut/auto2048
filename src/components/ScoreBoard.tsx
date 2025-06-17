@@ -1,22 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import AttemptsCounter from './AttemptsCounter';
 
 interface ScoreBoardProps {
   score: number;
   bestScore: number;
+  attempts: number;
 }
 
-const ScoreBoard: React.FC<ScoreBoardProps> = ({ score, bestScore }) => {
+const ScoreBoard: React.FC<ScoreBoardProps> = ({ score, bestScore, attempts }) => {
   return (
     <View style={styles.container}>
       <View style={styles.scoreBox}>
-        <Text style={styles.scoreLabel}>SCORE</Text>
+        <Text style={styles.scoreLabel}>PISTEET</Text>
         <Text style={styles.scoreValue}>{score}</Text>
       </View>
       <View style={styles.scoreBox}>
-        <Text style={styles.scoreLabel}>BEST</Text>
+        <Text style={styles.scoreLabel}>PARAS</Text>
         <Text style={styles.scoreValue}>{bestScore}</Text>
       </View>
+      <AttemptsCounter attempts={attempts} />
     </View>
   );
 };
